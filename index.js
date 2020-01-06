@@ -78,7 +78,7 @@ class Graphics {
             y < this.mapy(sy) + this.maph(h));
     }
     setColor(c) {
-        let grd = this.ctx.createLinearGradient(0, 0, 1500, 1500);
+        let grd = this.ctx.createLinearGradient(0, 0, canvas.width + 500, canvas.width + 500);
         grd.addColorStop(0, "white");
         grd.addColorStop(1, c);
         this.ctx.fillStyle = grd;
@@ -309,6 +309,7 @@ diagram["AnotherClass"].addComposed("UI", new LeftLeft());
 diagram["BClass"].addComposed("UI", new LeftLeft());
 diagram["BClass"].addComposed("AClass", new LeftRight());
 //*/
+const imgElem = document.getElementById("output");
 const canvas = document.getElementById("main");
 let ctx = canvas.getContext("2d");
 let g = new Graphics(ctx);
@@ -349,5 +350,33 @@ canvas.addEventListener("mouseup", evt => {
 function redraw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     Object.keys(diagram).forEach(x => diagram[x].draw(g));
+    let data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    let minx = Number.MAX_VALUE;
+    let miny = Number.MAX_VALUE;
+    let maxx = Number.MIN_VALUE;
+    let maxy = Number.MIN_VALUE;
+    for (let x = 0; x < canvas.width; x++) {
+        for (let y = 0; y < canvas.height; y++) {
+            let pixel = data.data[(x + y * canvas.width) * 4];
+            if (pixel !== 0) {
+                if (minx > x)
+                    minx = x;
+                if (miny > y)
+                    miny = y;
+                if (maxx < x)
+                    maxx = x;
+                if (maxy < y)
+                    maxy = y;
+            }
+        }
+    }
+    let hiddenCanvas = document.createElement("canvas");
+    hiddenCanvas.width = maxx - minx;
+    hiddenCanvas.height = maxy - miny;
+    let hiddenCtx = hiddenCanvas.getContext("2d");
+    console.log(minx, maxx, miny, maxy);
+    hiddenCtx.drawImage(canvas, minx, miny, maxx - minx, maxy - miny, 0, 0, maxx - minx, maxy - miny);
+    let img = hiddenCanvas.toDataURL("image/png");
+    imgElem.src = img;
 }
 redraw();
