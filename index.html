@@ -1,0 +1,24 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+  </head>
+  <body style="margin:0">
+    <canvas
+      id="main"
+      width="1000"
+      height="900"
+      style="border:1px solid red"
+    ></canvas
+    ><br />
+    <input type="button" value="+" onclick="g.zoom+=0.1; redraw()" />
+    <input type="button" value="-" onclick="g.zoom-=0.1; redraw()" />
+    <input type="button" value="/\" onclick="g.offsety+=10; redraw()" />
+    <input type="button" value=">" onclick="g.offsetx-=10; redraw()" />
+    <input type="button" value="\/" onclick="g.offsety-=10; redraw()" />
+    <input type="button" value="<" onclick="g.offsetx+=10; redraw()" />
+    <script src="index.js"></script>
+  </body>
+</html>
