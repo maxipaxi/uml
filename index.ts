@@ -274,12 +274,17 @@ class Box {
     this.comps.push({ other, connection });
   }
   public moveBy(x: number, y: number) {
-    this.x += x - (x % MARGIN); // TOdo: map to screen
-    this.y += y - (y % MARGIN);
+    this.x += x - (x % 50); // TOdo: map to screen
+    this.y += y - (y % 50);
   }
 }
 
 let diagram: { [key: string]: Box } = {};
+/*
+Context<>-Strategy
+A- ->Strategy
+B- ->Strategy
+*/
 /*
 diagram["Context"] = new Box(100, 100, "Context");
 diagram["Strategy"] = new Box(250, 100, "Strategy");
@@ -365,28 +370,37 @@ diagram["AnotherClass"].addComposed("UI", new LeftLeft());
 diagram["BClass"].addComposed("UI", new LeftLeft());
 diagram["BClass"].addComposed("AClass", new LeftRight());
 //*/
+/*
+Context<>-Strategy
+A-->Strategy
+B-->Strategy
+*/
+function updateDiagram() {
+  Object.keys(diagram).forEach(x => delete diagram[x]);
+  const confElem = document.getElementById("conf") as HTMLTextAreaElement;
+  const conf = confElem.value.replace(/ /g, "").split("\n");
+  conf.forEach(x => {
+    if (!x) return;
+    let boxes = x.split(/<>-|-->/);
+    console.log(boxes);
+    let lname = boxes[0].match(/(.*?),|.*/)![0];
+    parseBox(boxes[0], lname);
+    let rname = boxes[1].match(/(.*?),|.*/)![0];
+    parseBox(boxes[1], rname);
+    if (x.indexOf("<>-") >= 0) {
+      diagram[lname].addComposed(rname, new RightLeft());
+    } else if (x.indexOf("-->") >= 0) {
+      diagram[lname].addImplements(rname);
+    }
+  });
+  redraw();
+}
 
 const imgElem = document.getElementById("output") as HTMLImageElement;
 const canvas = document.getElementById("main") as HTMLCanvasElement;
 let ctx = canvas.getContext("2d")!;
 let g = new Graphics(ctx);
 let selected: Box | undefined = undefined;
-/*
-canvas.addEventListener("click", evt => {
-  selected = Object.values(diagram).find(x =>
-    x.contains(g, evt.clientX, evt.clientY)
-  );
-  // console.log(evt.clientX, evt.clientY);
-  let name = window.prompt("Name");
-  if (!name) return;
-  diagram[name] = new Box(
-    evt.clientX - (evt.clientX % GRID_SIZE),
-    evt.clientY - (evt.clientY % GRID_SIZE),
-    name
-  );
-  redraw();
-});
-*/
 let startx = 0;
 let starty = 0;
 canvas.addEventListener("mousedown", evt => {
@@ -405,6 +419,22 @@ canvas.addEventListener("mouseup", evt => {
     redraw();
   }
 });
+
+function parseBox(box: string, name: string) {
+  if (diagram[name] !== undefined) return;
+  let pos = box.match(/\d+/g);
+  let colorMatch = box.match(/#....../);
+  let color = undefined;
+  if (colorMatch !== null) color = colorMatch[0];
+  let posx = 100 * Object.keys(diagram).length;
+  let posy = 100 * Object.keys(diagram).length;
+  if (pos && pos.length === 2) {
+    posx = +pos[0];
+    posy = +pos[1];
+  }
+  let lbox = new Box(posx, posy, name, color);
+  diagram[name] = lbox;
+}
 
 function redraw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
