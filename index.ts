@@ -27,6 +27,9 @@ class Graphics {
   public drawRect(x: number, y: number, w: number, h: number) {
     this.ctx.strokeRect(this.mapx(x), this.mapy(y), this.mapw(w), this.maph(h));
   }
+  public fillRect(x: number, y: number, w: number, h: number) {
+    this.ctx.fillRect(this.mapx(x), this.mapy(y), this.mapw(w), this.maph(h));
+  }
   public drawLine(sx: number, sy: number, ex: number, ey: number) {
     this.ctx.beginPath();
     this.ctx.moveTo(this.mapx(sx), this.mapy(sy));
@@ -65,6 +68,7 @@ class Graphics {
     ctx.stroke();
   }
   public drawTextCentered(text: string, x: number, y: number) {
+    this.ctx.fillStyle = "black";
     this.ctx.font = Math.round(FONT_SIZE * this.zoom) + "px Courier";
     this.ctx.fillText(
       text,
@@ -73,6 +77,7 @@ class Graphics {
     );
   }
   public drawText(text: string, x: number, y: number) {
+    this.ctx.fillStyle = "black";
     this.ctx.font = Math.round(FONT_SIZE * this.zoom) + "px Courier";
     this.ctx.fillText(text, this.mapx(x), this.mapy(y));
   }
@@ -90,6 +95,13 @@ class Graphics {
       this.mapy(sy) <= y &&
       y < this.mapy(sy) + this.maph(h)
     );
+  }
+  public setColor(c: string) {
+    let grd = this.ctx.createLinearGradient(0, 0, 1500, 1500);
+    grd.addColorStop(0, "white");
+    grd.addColorStop(1, c);
+    this.ctx.fillStyle = grd;
+    this.ctx.strokeStyle = c;
   }
   private mapx(x: number) {
     return x * this.zoom - this.offsetx;
@@ -186,8 +198,16 @@ class Box {
   private impls: string[] = [];
   private comps: { other: string; connection: Connection }[] = [];
   private indegree: number = 0;
-  constructor(private x: number, private y: number, public name: string) {}
+  constructor(
+    private x: number,
+    private y: number,
+    public name: string,
+    private color = "#000000"
+  ) {}
   public draw(g: Graphics) {
+    g.setColor(this.color);
+    g.fillRect(this.x, this.y, CLASS_WIDTH, CLASS_HEIGHT);
+    g.setColor("black");
     g.drawRect(this.x, this.y, CLASS_WIDTH, CLASS_HEIGHT);
     g.drawTextCentered(
       this.name,
@@ -200,6 +220,7 @@ class Box {
         this.x + CLASS_WIDTH / 2,
         this.y - MARGIN
       );
+    g.setColor(this.color);
     this.impls.forEach(x => this.drawImpl(g, x));
     this.comps.forEach(x =>
       x.connection.draw(
@@ -266,16 +287,16 @@ diagram["Context"].addComposed("Strategy");
 //*
 diagram["Observer"] = new Box(50, 200, "Observer");
 diagram["Rapid"] = new Box(350, 200, "Rapid");
-diagram["UIObserver"] = new Box(150, 300, "UIObserver");
-diagram["UIFacade"] = new Box(350, 300, "UIFacade");
-diagram["UI"] = new Box(550, 300, "UI");
-diagram["BObserver"] = new Box(150, 400, "BObserver");
-diagram["BFacade"] = new Box(350, 400, "BFacade");
-diagram["BClass"] = new Box(550, 400, "BClass");
-diagram["AObserver"] = new Box(150, 500, "AObserver");
-diagram["AFacade"] = new Box(350, 500, "AFacade");
-diagram["AClass"] = new Box(550, 500, "AClass");
-diagram["AnotherClass"] = new Box(550, 600, "AnotherClass");
+diagram["UIObserver"] = new Box(150, 300, "UIObserver", "#0000cc");
+diagram["UIFacade"] = new Box(350, 300, "UIFacade", "#0000cc");
+diagram["UI"] = new Box(550, 300, "UI", "#0000cc");
+diagram["BObserver"] = new Box(150, 400, "BObserver", "#00cc00");
+diagram["BFacade"] = new Box(350, 400, "BFacade", "#00cc00");
+diagram["BClass"] = new Box(550, 400, "BClass", "#00cc00");
+diagram["AObserver"] = new Box(150, 500, "AObserver", "#cc0000");
+diagram["AFacade"] = new Box(350, 500, "AFacade", "#cc0000");
+diagram["AClass"] = new Box(550, 500, "AClass", "#cc0000");
+diagram["AnotherClass"] = new Box(550, 600, "AnotherClass", "#cc0000");
 diagram["Rapid"].addComposed("UIObserver", new LeftLeft());
 diagram["Rapid"].addComposed("AObserver", new LeftLeft());
 diagram["Rapid"].addComposed("BObserver", new LeftLeft());
@@ -295,13 +316,13 @@ diagram["AnotherClass"].addComposed("Rapid", new RightRight());
 diagram["BClass"].addComposed("Rapid", new RightRight());
 //*/
 /*
-diagram["UIFacade"] = new Box(350, 200, "UIFacade");
-diagram["UI"] = new Box(550, 200, "UI");
-diagram["AFacade"] = new Box(550, 400, "AFacade");
-diagram["BFacade"] = new Box(550, 300, "BFacade");
-diagram["BClass"] = new Box(350, 300, "BClass");
-diagram["AClass"] = new Box(350, 400, "AClass");
-diagram["AnotherClass"] = new Box(350, 500, "AnotherClass");
+diagram["UIFacade"] = new Box(350, 200, "UIFacade", "#0000cc");
+diagram["UI"] = new Box(550, 200, "UI", "#0000cc");
+diagram["AFacade"] = new Box(550, 400, "AFacade", "#cc0000");
+diagram["BFacade"] = new Box(550, 300, "BFacade", "#00cc00");
+diagram["BClass"] = new Box(350, 300, "BClass", "#00cc00");
+diagram["AClass"] = new Box(350, 400, "AClass", "#cc0000");
+diagram["AnotherClass"] = new Box(350, 500, "AnotherClass", "#cc0000");
 diagram["UIFacade"].addComposed("UI", new RightLeft());
 diagram["BFacade"].addComposed("BClass", new LeftRight());
 diagram["AFacade"].addComposed("AClass", new LeftRight());
@@ -312,6 +333,19 @@ diagram["BClass"].addComposed("UIFacade", new LeftLeft());
 diagram["BClass"].addComposed("AFacade", new LeftRight());
 diagram["UI"].addComposed("AFacade", new RightRight());
 diagram["UI"].addComposed("BFacade", new RightRight());
+//*/
+/*
+diagram["UI"] = new Box(350, 200, "UI", "#0000cc");
+diagram["AClass"] = new Box(350, 400, "AClass", "#cc0000");
+diagram["AnotherClass"] = new Box(350, 100, "AnotherClass", "#cc0000");
+diagram["BClass"] = new Box(350, 300, "BClass", "#00cc00");
+diagram["UI"].addComposed("AClass", new RightRight());
+diagram["UI"].addComposed("AnotherClass", new RightRight());
+diagram["UI"].addComposed("BClass", new RightRight());
+diagram["AClass"].addComposed("UI", new LeftLeft());
+diagram["AnotherClass"].addComposed("UI", new LeftLeft());
+diagram["BClass"].addComposed("UI", new LeftLeft());
+diagram["BClass"].addComposed("AClass", new LeftRight());
 //*/
 /*
 diagram["UI"] = new Box(350, 200, "UI");
