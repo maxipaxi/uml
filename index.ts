@@ -416,7 +416,7 @@ function redraw() {
   let maxy = Number.MIN_VALUE;
   for (let x = 0; x < canvas.width; x++) {
     for (let y = 0; y < canvas.height; y++) {
-      let pixel = data.data[(x + y * canvas.width) * 4];
+      let pixel = data.data[(x + y * canvas.width) * 4 + 3];
       if (pixel !== 0) {
         if (minx > x) minx = x;
         if (miny > y) miny = y;
