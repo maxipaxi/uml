@@ -296,7 +296,7 @@ diagram["Context"].addComposed("Strategy");
 //*/
 //*
 diagram["Observer"] = new Box(50, 200, "Observer");
-diagram["Rapid"] = new Box(350, 200, "Rapid");
+diagram["Message Queue"] = new Box(350, 200, "Message Queue");
 diagram["UIObserver"] = new Box(150, 300, "UIObserver", "#0000cc");
 diagram["UIFacade"] = new Box(350, 300, "UIFacade", "#0000cc");
 diagram["UI"] = new Box(550, 300, "UI", "#0000cc");
@@ -307,9 +307,9 @@ diagram["AObserver"] = new Box(150, 500, "AObserver", "#cc0000");
 diagram["AFacade"] = new Box(350, 500, "AFacade", "#cc0000");
 diagram["AClass"] = new Box(550, 500, "AClass", "#cc0000");
 diagram["AnotherClass"] = new Box(550, 600, "AnotherClass", "#cc0000");
-diagram["Rapid"].addComposed("UIObserver", new LeftLeft());
-diagram["Rapid"].addComposed("AObserver", new LeftLeft());
-diagram["Rapid"].addComposed("BObserver", new LeftLeft());
+diagram["Message Queue"].addComposed("UIObserver", new LeftLeft());
+diagram["Message Queue"].addComposed("AObserver", new LeftLeft());
+diagram["Message Queue"].addComposed("BObserver", new LeftLeft());
 diagram["AObserver"].addComposed("AFacade", new RightLeft());
 diagram["BObserver"].addComposed("BFacade", new RightLeft());
 diagram["UIObserver"].addComposed("UIFacade", new RightLeft());
@@ -320,10 +320,10 @@ diagram["BFacade"].addComposed("BClass", new RightLeft());
 diagram["UIObserver"].addImplements("Observer");
 diagram["AObserver"].addImplements("Observer");
 diagram["BObserver"].addImplements("Observer");
-diagram["UI"].addComposed("Rapid", new RightRight());
-diagram["AClass"].addComposed("Rapid", new RightRight());
-diagram["AnotherClass"].addComposed("Rapid", new RightRight());
-diagram["BClass"].addComposed("Rapid", new RightRight());
+diagram["UI"].addComposed("Message Queue", new RightRight());
+diagram["AClass"].addComposed("Message Queue", new RightRight());
+diagram["AnotherClass"].addComposed("Message Queue", new RightRight());
+diagram["BClass"].addComposed("Message Queue", new RightRight());
 //*/
 /*
 diagram["UIFacade"] = new Box(350, 200, "UIFacade", "#0000cc");
